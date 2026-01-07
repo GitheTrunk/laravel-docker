@@ -4,19 +4,31 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Product;
 
 class ProductController extends Controller
 {
+
     // List all products
     public function getProducts()
     {
         return Product::all();
     }
 
-    // Create a new product
+    // Create a new product (manager/admin only)
     public function createProduct(Request $request)
     {
+        $user = Auth::user();
+        
+        // Check role-based access
+        if (!$user->hasRole('manager') && !$user->hasRole('admin')) {
+            return response()->json(['message' => 'Only managers and admins can create products'], 403);
+        }
+
+        // Also use policy for additional authorization
+        $this->authorize('create', Product::class);
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'category_id' => 'required|integer|exists:categories,id',
@@ -25,6 +37,7 @@ class ProductController extends Controller
             'images' => 'nullable|string',
         ]);
 
+        $validated['created_by'] = auth()->user()->id;
         $product = Product::create($validated);
         return response()->json($product, 201);
     }
@@ -33,6 +46,7 @@ class ProductController extends Controller
     public function getProductById($productId)
     {
         $product = Product::findOrFail($productId);
+        $this->authorize('view', $product);
         return $product;
     }
 
@@ -40,6 +54,7 @@ class ProductController extends Controller
     public function updateProduct(Request $request, $productId)
     {
         $product = Product::findOrFail($productId);
+        $this->authorize('update', $product);
 
         $validated = $request->validate([
             'name' => 'sometimes|required|string|max:255',
@@ -58,6 +73,7 @@ class ProductController extends Controller
     public function deleteProduct($productId)
     {
         $product = Product::findOrFail($productId);
+        $this->authorize('delete', $product);
         $product->delete();
         return response()->noContent();
     }
