@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class User extends Authenticatable
 {
@@ -24,6 +26,20 @@ class User extends Authenticatable
         'password',
     ];
 
+    public function author(): HasOne
+    {
+        return $this->hasOne(Author::class);
+    }
+
+    public function audience(): HasOne
+    {
+        return $this->hasOne(Audience::class);
+    }
+
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class);
+    }
     /**
      * The attributes that should be hidden for serialization.
      *

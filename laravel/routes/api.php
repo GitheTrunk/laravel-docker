@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\AuthorController;
+use App\Http\Controllers\ArticleController;
 
 // Public routes
 Route::post('/login', function (Request $request) {
@@ -29,6 +31,11 @@ Route::post('/login', function (Request $request) {
         'user' => $user->load('roles')
     ]);
 })->withoutMiddleware(['web']);
+
+// Add this line here (before the protected routes)
+Route::post('/authors', [AuthorController::class, 'store']);
+Route::post('/articles', [ArticleController::class, 'store']);
+Route::get('/articles', [ArticleController::class, 'index']);
 
 // Protected routes
 Route::middleware('auth:api')->group(function () {
@@ -58,3 +65,7 @@ Route::middleware('auth:api')->group(function () {
         Route::get('/collection-demo', 'collectionDemo');
     });
 });
+
+Route::get('/user', function (Request $request) {
+    return $request->user();
+})->middleware('auth:sanctum');
