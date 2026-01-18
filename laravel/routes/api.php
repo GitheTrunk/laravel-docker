@@ -7,6 +7,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\AuthorController;
 use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\AudienceController;
 
 // Public routes
 Route::post('/login', function (Request $request) {
@@ -43,6 +44,10 @@ Route::middleware('auth:api')->group(function () {
         return $request->user()->load('roles', 'roles.permissions');
     });
 
+    Route::get('/users', function () {
+        return \App\Models\User::select('id', 'name', 'email', 'created_at')->get();
+    });
+
     Route::controller(CategoryController::class)->prefix('categories')->group(function() {
         Route::get('/', 'getCategories');
         Route::post('/', 'createCategory');
@@ -63,6 +68,14 @@ Route::middleware('auth:api')->group(function () {
         Route::get('/chunk-process', 'chunkProcess');
         Route::get('/stats', 'stats');
         Route::get('/collection-demo', 'collectionDemo');
+    });
+
+    Route::controller(AudienceController::class)->prefix('audiences')->group(function(){
+        Route::get('/', 'index');
+        Route::post('/', 'store');
+        Route::get('/{audience}', 'show');
+        Route::put('/{audience}', 'update');
+        Route::delete('/{audience}', 'destroy');
     });
 });
 
