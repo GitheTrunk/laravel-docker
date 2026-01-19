@@ -8,6 +8,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\AuthorController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\AudienceController;
+use App\Http\Controllers\SubscriptionController;
 
 // Public routes
 Route::post('/login', function (Request $request) {
@@ -76,6 +77,13 @@ Route::middleware('auth:api')->group(function () {
         Route::get('/{audience}', 'show');
         Route::put('/{audience}', 'update');
         Route::delete('/{audience}', 'destroy');
+    });
+
+    Route::controller(SubscriptionController::class)->prefix('subscriptions')->group(function(){
+        Route::post('/articles/{article}/subscribe', 'subscribe');
+        Route::delete('/articles/{article}/unsubscribe', 'unsubscribe');
+        Route::get('/my-subscriptions', 'mySubscriptions');
+        Route::get('/articles/{article}/subscribers', 'articlesSubscsribers');
     });
 });
 

@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use App\Models\User;
 
 class Article extends Model
 {
@@ -25,5 +27,10 @@ class Article extends Model
     public function comments(): MorphMany
     {
         return $this->morphMany(Comment::class, 'commentable');
+    }
+
+    public function subscribers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'article_user')->withTimestamps();
     }
 }

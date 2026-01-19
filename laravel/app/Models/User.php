@@ -3,12 +3,14 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Article;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
@@ -40,6 +42,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(Comment::class);
     }
+
+    public function subscribedArticles(): BelongsToMany
+    {
+        return $this->belongsToMany(Article::class, 'article_user')->withTimestamps();
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *
