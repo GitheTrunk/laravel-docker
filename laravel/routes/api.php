@@ -9,6 +9,10 @@ use App\Http\Controllers\AuthorController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\AudienceController;
 use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\CommentController;
+use App\Models\Article;
+use App\Models\Audience;
+use App\Models\Author;
 
 // Public routes
 Route::post('/login', function (Request $request) {
@@ -84,6 +88,45 @@ Route::middleware('auth:api')->group(function () {
         Route::delete('/articles/{article}/unsubscribe', 'unsubscribe');
         Route::get('/my-subscriptions', 'mySubscriptions');
         Route::get('/articles/{article}/subscribers', 'articlesSubscsribers');
+    });
+
+    Route::controller(\App\Http\Controllers\CommentController::class)->prefix('comments')->group(function () {
+        Route::get('/', 'index');
+        Route::post('/articles/{article}', 'commentOnArticle');
+        Route::post('/authors/{author}', 'commentOnAuthor');
+        Route::post('/audiences/{audience}', 'commentOnAudience');
+        Route::get('/articles/{article}', 'articleComments');
+        Route::get('/authors/{author}', 'authorComments');
+        Route::get('/audiences/{audience}', 'audienceComments');
+        Route::delete('/{comment}', 'destroy');
+    });
+
+    // Query APIs
+    Route::prefix('query')->group(function () {
+        // Get all articles of a specific author
+        Route::get('/authors/{author}/articles', function (Author $author) {
+            return $author->articles()->paginate(15);
+        });
+
+        // Get all audiences of a specific article
+        Route::get('/articles/{article}/audiences', function (Article $article) {
+            return $article->audiences()->with('user')->paginate(15);
+        });
+
+        // Get all audiences of an author (using HasManyThrough)
+        Route::get('/authors/{author}/audiences', function (Author $author) {
+            return $author->audiences()->with(['user', 'article'])->paginate(15);
+        });
+
+        // Get all comments of a specific audience
+        Route::get('/audiences/{audience}/comments', function (Audience $audience) {
+            return $audience->comments()->with('user')->paginate(15);
+        });
+
+        // Get all comments with their commentable (topic)
+        Route::get('/comments-with-topics', function () {
+            return \App\Models\Comment::with(['user', 'commentable'])->paginate(15);
+        });
     });
 });
 
